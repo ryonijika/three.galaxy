@@ -1,4 +1,5 @@
-# three.galaxy
+### [Three Galaxy](https://ryonijika.github.io/three.galaxy)
+ It is galaxy-like particle simulator.
+ Firefox is recommended for high frame rate.
 
-Three Galaxy is in here:
-https://ryonijika.github.io/three.galaxy
+ It was inspired by [this video](https://m.youtube.com/watch?v=0Kx4Y9TVMGg)
