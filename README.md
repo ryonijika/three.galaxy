@@ -1,4 +1,4 @@
 # three.galaxy
 
-Galaxy 3D
-https://ryonijika.github.com/three.galaxy
+Three Galaxy is in here:
+https://ryonijika.github.io/three.galaxy
