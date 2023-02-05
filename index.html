@@ -1,165 +1,159 @@
+<html>
+  <head>
+    <title>3D Galaxy</title>
+    <meta charset="utf-8"/>
+    <style>
+      p {
+        color: white;
+      }
+      body {
+        padding: 0;
+        margin: 0;
+        background: black;
+        text-align: center;
+      }
+      input {
+        width: 50vw
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas"></canvas>
+    <p id="frameNo">0</p>
 
-<canvas id="myCanvas"></canvas>
-<script src="https://unpkg.com/three@0.140.2/build/three.min.js"></script>
-<script src="https://unpkg.com/three@0.137.4/examples/js/controls/OrbitControls.js"></script>
-<p id="frameNo">0</p>
-<style>
-  p {
-    color: white;
-  }
-  body {
-    padding: 0;
-    margin: 0;
-    background: black;
-    text-align: center;
-  }
-  input {
-    width: 50vw
-  }
-</style>
-<script>
-  
-  function rnorm(){
-    return Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(2 * Math.PI * Math.random());
-}
+    <script src="https://unpkg.com/three@0.140.2/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.137.4/examples/js/controls/OrbitControls.js"></script>
+    <script>
+    rnorm = () => {
+      return Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(2 * Math.PI * Math.random());
+    }
 
+    canvasElement = document.querySelector('#myCanvas');
 
-  const nolimitation = 1000000
-  let rot = 0;
-  canvaselem = document.querySelector('#myCanvas')
-
-
-  const renderer = new THREE.WebGLRenderer({
-    canvas: canvaselem,
-  });
-
-  renderer.setPixelRatio(window.devicePixelRatio);
-    width = window.innerWidth
-  height = window.innerHeight
-  if (width > height) {
-renderer.setSize(height - 50, height -50);
-
-  } else {
-    renderer.setSize(width-50, width-50)
-  }
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 1, nolimitation);
-  camera.position.set(0, 0, 5000);
-const controls = new THREE.OrbitControls(camera, canvaselem);
-
-controls.enableDamping = false;
-controls.dampingFactor = 0.2;
-
-loader = new THREE.TextureLoader();
-texture = loader.load('./ball.png');
-
-
-  createStarField = (entitys) => {
-const geometry =  new THREE.SphereGeometry(); 
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(entitys, 3));
-
-    const material = new THREE.PointsMaterial({
-      size: 80,
-      color: 0xffffff,
-      // map: texture,
-      depthTest: true ,
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvasElement,
     });
 
-    mesh = new THREE.Points(geometry, material);
-    scene.add(mesh)
-  }
-
-  render3d = () => {
-    if (firstime) { 
-      firstime = false
-    } else {
-      scene.remove(mesh)
+    resizeCanvas = () => {
+      renderer.setPixelRatio(window.devicePixelRatio);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      if (width > height) { renderer.setSize(height-50, height-50); }
+      else { renderer.setSize(width-50, width-50); }
     }
-    createStarField(entitys);
-    width = window.innerWidth
-  height = window.innerHeight
-  if (width > height) {
-renderer.setSize(height - 50, height -50);
-  } else {
-    renderer.setSize(width-50, width-50)
-  }
-renderer.setPixelRatio(window.devicePixelRatio);
-  // Ã£â€šÂ«Ã£Æ’Â¡Ã£Æ’Â©Ã£â€šÂ³Ã£Æ’Â³Ã£Æ’Ë†Ã£Æ’Â­Ã£Æ’Â¼Ã£Æ’Â©Ã£Æ’Â¼Ã£â€šâ€™Ã¦â€ºÂ´Ã¦â€“Â°
 
-  controls.update();
-    renderer.render(scene, camera);
-  }
-  
-  atoms = [];
-  atom = (x, y, z) => {
-    return { x: x, y: y, z: z, vx: 0, vy: 0, vz: 0};
-  };
-  random = () => {
-    return rnorm()*500-250
-  };
-  create = (number) => {
-    group = [];
-    for (let i = 0; i < number; i++) {
-      group.push(atom(random(), random(), random()));
-      atoms.push(group[i]);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 1, 1000000);
+    camera.position.set(0, 0, 5000);
+    const controls = new THREE.OrbitControls(camera, canvasElement);
+
+    controls.enableDamping = false;
+    controls.dampingFactor = 0.2;
+
+    loader = new THREE.TextureLoader();
+    texture = loader.load('./ball.png');
+
+    createStarField = (entitys) => {
+      const geometry =  new THREE.SphereGeometry(); 
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(entitys, 3));
+      const material = new THREE.PointsMaterial({
+        size: 80,
+        color: 0xffffff,
+        map: texture,
+        depthTest: true ,
+      });
+      mesh = new THREE.Points(geometry, material);
+      scene.add(mesh);
     }
-    return group;
-  };
-  lmt = 10000
-  rule = (atoms1, atoms2, g) => {
-    for (let i = 0; i < atoms1.length; i++) {
-      fx = 0;
-      fy = 0;
-      fz = 0;
-      for (let j = 0; j < atoms2.length; j++) {
-        a = atoms1[i];
-        b = atoms2[j];
-        dx = a.x - b.x;
-        dy = a.y - b.y;
-        dz = a.z - b.z;
-        d = Math.sqrt(dx**2 + dy**2 + dz**2); 
-        if (d != 0) { //Prevent from too much interaction
-          F = (g * 1) / (d**2)
-          fx += F * dx;
-          fy += F * dy;
-          fz += F * dz;
-        }
+
+    render3d = () => {
+      if (firstime) { firstime = false; } 
+      else { scene.remove(mesh); }
+      createStarField(entitys);
+      resizeCanvas();
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    
+    stars = [];
+    star = (x, y, z) => {
+      return { x: x, y: y, z: z, vx: 0, vy: 0, vz: 0};
+    };
+
+    random = () => {
+      return rnorm()*500-250;
+    };
+
+    create = (number) => {
+      group = [];
+      for (let i = 0; i < number; i++) {
+        group.push(star(random(), random(), random()));
+        stars.push(group[i]);
       }
-      a.vx = (a.vx + fx);
-      a.vy = (a.vy + fy);
-      a.vz = (a.vz + fz);
-      a.x += a.vx;
-      a.y += a.vy;
-      a.z += a.vz;
-      if (a.x <= -lmt || a.x >= lmt ) { a.vx *= -1; }
-      if (a.y <= -lmt || a.y >= lmt ) { a.vy *= -1; }
-      if (a.z <= -lmt || a.z >= lmt ) { a.vz *= -1; }
+      return group;
+    };
+
+    lmt = 10000
+
+    move = (stars1, stars2, g) => {
+      for (let i = 0; i < stars1.length; i++) {
+        fx = 0;
+        fy = 0;
+        fz = 0;
+        for (let j = 0; j < stars2.length; j++) {
+          a = stars1[i];
+          b = stars2[j];
+          dx = a.x - b.x;
+          dy = a.y - b.y;
+          dz = a.z - b.z;
+          d = Math.sqrt(dx**2 + dy**2 + dz**2); 
+          if (d != 0) {
+            F = (g * 1) / (d**2);
+            fx += F * dx;
+            fy += F * dy;
+            fz += F * dz;
+          }
+        }
+        a.vx = (a.vx + fx);
+        a.vy = (a.vy + fy);
+        a.vz = (a.vz + fz);
+        a.x += a.vx;
+        a.y += a.vy;
+        a.z += a.vz;
+        if (a.x <= -lmt || a.x >= lmt ) { a.vx *= -1; }
+        if (a.y <= -lmt || a.y >= lmt ) { a.vy *= -1; }
+        if (a.z <= -lmt || a.z >= lmt ) { a.vz *= -1; }
+      }
+    };
+
+    renderFps = () => {
+      frameNo += 1;
+      if ((new Date() - dt) >= 250) {
+        fps = (frameNo / (250*(1/1000)));
+        frameDisp.innerText = fps.toFixed() + " FPS"; 
+        dt = new Date();
+        frameNo = 0;
+      }
     }
-  };
-  yellow = create(500)
-  frameDisp = document.getElementById("frameNo")
-  frameNo = 0
-  firstime = true
-  dt = new Date()
-  force = 1
-  update = () => {
-    force
-    rule(yellow, yellow, -1/100);
-    entitys = []
-    for (i = 0; i < atoms.length; i++) {
-      entitys.push(atoms[i].x, atoms[i].y, atoms[i].z)
-    }
-    render3d()
-    frameNo += 1
-    if ((new Date() - dt) >= 250) {
-      fps  = (frameNo / (250*(1/1000)))
-      frameDisp.innerText = fps.toFixed() + " FPS"    
-      dt = new Date()
-      frameNo = 0
-    }
-    requestAnimationFrame(update);
-  };
-  update();
-  
-</script>
+
+    stars = create(500);
+    frameDisp = document.getElementById("frameNo");
+
+    frameNo = 0;
+    firstime = true;
+    dt = new Date();
+
+    update = () => {
+      move(stars, stars, -1/100);
+      entitys = [];
+      for (i = 0; i < stars.length; i++) {
+        entitys.push(stars[i].x, stars[i].y, stars[i].z);
+      }
+      render3d();
+      renderFps();
+      requestAnimationFrame(update);
+    };
+    update();
+    </script>
+  </body>
+</html>
